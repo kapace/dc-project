@@ -26,8 +26,8 @@ function love.load()
 	
 	objects.tower = {}
 	objects.tower.body = love.physics.newBody( world, cxClient / 2 , cyClient  / 2 	)
-	objects.tower.shape = love.physics.newCircleShape( 25 )
-	objects.tower.fixture = love.physics.newFixture( objects.tower.body,objects.tower.shape )
+	objects.tower.shape = love.physics.newRectangleShape( 25, 25 )
+	objects.tower.fixture = love.physics.newFixture( objects.tower.body, objects.tower.shape )
 	objects.tower.fixture:setRestitution( 0.4 )
 	objects.tower.body:setActive ( false )
 		
@@ -42,21 +42,29 @@ end
 
 function love.draw()
 	x, y = love.mouse.getPosition();
-	deltaY = y ;
-	deltaX = x ;
+	deltaY = y  - objects.tower.body:getY();
+	deltaX = x - objects.tower.body:getX();
 	
-	angle = math.atan( deltaY, deltaX ) * 180 / math.pi;
-
-	love.graphics.setColor(160, 230, 250)
+	angle = math.atan2( deltaY, deltaX ) * 180  / math.pi -- Calc the degrees. 
+	angle = angle + 90 -- Add 90 to offset rotation of image. 
+	angle = angle * (math.pi / 180) -- Converting to Radians. 
+	
+	love.graphics.setColor(255, 255, 255)
 	love.graphics.rectangle("fill", 0, 0, cxClient, cyClient)
 	
 	love.graphics.setColor( 40, 0, 0 )
 	love.graphics.print(love.timer.getFPS(), 10, 10)
+	love.graphics.print( angle, 40, 40 );
+	
+	love.graphics.setColor(100, 100, 100)
+	love.graphics.line( x, y, objects.tower.body:getX(), objects.tower.body:getY())
 	
 	
 	love.graphics.translate ( cxClient / 2, cyClient / 2 );
 	
-	love.graphics.draw(tower,  0, 0,  angle)
+	
+ 	
+	love.graphics.draw(tower,  -25, -25,  angle)
 
 	
 	--love.graphics.setColor( 40, 255, 40 )
