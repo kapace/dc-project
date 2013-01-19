@@ -26,7 +26,7 @@ function love.load()
 	
 	objects.tower = {}
 	objects.tower.body = love.physics.newBody( world, cxClient / 2 , cyClient  / 2 	)
-	objects.tower.shape = love.physics.newRectangleShape( 25, 25 )
+	objects.tower.shape = love.physics.newCircleShape( 25 )
 	objects.tower.fixture = love.physics.newFixture( objects.tower.body, objects.tower.shape )
 	objects.tower.fixture:setRestitution( 0.4 )
 	objects.tower.body:setActive ( false )
@@ -62,9 +62,9 @@ function love.draw()
 	
 	love.graphics.translate ( cxClient / 2, cyClient / 2 );
 	
-	
- 	
-	love.graphics.draw(tower,  -25, -25,  angle)
+
+ 	love.graphics.rotate( angle )
+		love.graphics.draw(tower,  -50, -25)
 
 	
 	--love.graphics.setColor( 40, 255, 40 )
