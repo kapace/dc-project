@@ -9,7 +9,7 @@ start = socket.gettime()
 function love.load()
     print ("load")
     local socket = require("socket")
-    s = assert(socket.connect("75.155.249.38", 1337))
+    s = assert(socket.connect("127.0.0.1", 1337))
 end
 
 function love.update()
