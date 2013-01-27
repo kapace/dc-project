@@ -22,7 +22,7 @@ int server () {
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(1337);
+    serv_addr.sin_port = htons(4545);
 
     if (bind(sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
         error("ERROR on binding");
@@ -70,14 +70,6 @@ int main () {
 
     for (size_t i =0; i < threads.size(); i++)
         pthread_join (threads[i], NULL);
-    /*header_t head;
-    recv_complete (client, header, sizeof(header_t));
-    if (head.type == MSG_PLAYER_UPDATE_INFO) {
-        player_matchmaking_t pmt;
-	    pmt.header
-        recv_complete( &pmt + sizeof(header_t)
-    }*/
-
 }
 
 

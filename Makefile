@@ -1,3 +1,4 @@
+all : server client
 server : server.cpp net.o
 	g++ server.cpp net.o -lpthread -o server
 
