@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <unistd.h>
+#include <signal.h>
 #include <pthread.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
@@ -10,32 +11,11 @@
 
 using namespace std;
 vector <player_matchmaking_t> players;
-void error(const char *msg){perror(msg);exit(1);}
-
-int server () {
-    // ...
-    struct sockaddr_in serv_addr;
-    
-    int sock = socket(AF_INET, SOCK_STREAM, 0);;
-    if (sock < 0) 
-        error("ERROR opening socket");
-
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(4545);
-
-    if (bind(sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-        error("ERROR on binding");
-    
-    listen(sock, 5);
-
-    return sock;
-}
-
 
 void * handleclient(void* thing) {
     int client = (long)thing;
-
+    
+    // Add this player first
     player_matchmaking_t player;
     if (recv_complete(client, &player, sizeof(player), 0) > 0) {
         player.name[PLAYER_NAME_SIZE-1] = 0;
@@ -43,6 +23,7 @@ void * handleclient(void* thing) {
         players.push_back(player);
     }
 
+    // Send all current players. probably need mutex here.
     for (size_t i = 0; i < players.size(); i++) {
         players[i].more_players = true;
         if (i+1 == players.size()) // last player
@@ -50,26 +31,38 @@ void * handleclient(void* thing) {
         send(client, &players[i], sizeof(player_matchmaking_t), 0);
     }
     cout << "Sent current players" << endl;
+
+    close(client);
+}
+
+int sock;
+void killsocket(int sign){
+    cout << "Closing socket" << endl;
+    close(sock);
 }
 
 int main () {
+    long client; // the correct type here in uintptr: an int that has the size of a pointer.
     socklen_t clilen;
     struct sockaddr_in cli_addr;
     vector<pthread_t> threads;
-    // Start server
-    int sock = server();    
     
-    int client;
-    cout << "Listening..." << endl;
-    while (( client = accept(sock, (struct sockaddr *) &cli_addr, &clilen) )) {
+    // Start server on default port
+    sock = server();    
+    signal(SIGINT, killsocket); // handle ctrl-c nicely.
+
+    cout << "Listening for connections..." << endl;
+    // Listen for new connections, or until server socket is closed.
+    while (( client = accept(sock, (struct sockaddr *) &cli_addr, &clilen) ) > 0) {
         cout << "new connection." << endl;
         pthread_t thread;
-        pthread_create (&thread, NULL, handleclient, (void*)client);
+        pthread_create (&thread, NULL, handleclient, (void*)client); // use struct as parameter
         threads.push_back(thread);
     }
 
+    cout << "Closing down." << endl;
     for (size_t i =0; i < threads.size(); i++)
         pthread_join (threads[i], NULL);
+    return 0;
 }
-
 

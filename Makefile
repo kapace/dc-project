@@ -8,5 +8,5 @@ client : client.cpp net.o
 clean :
 	rm -f client server net.o
 
-net.o : net.c
-	g++ -c net.c
+net.o : net.cpp
+	g++ -c net.cpp

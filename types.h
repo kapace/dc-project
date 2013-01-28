@@ -25,7 +25,7 @@ typedef struct {
     char value [MAP_NAME_SIZE];
 } map_t;
 
-// Player: name, team number, role type, ready - is player ready.
+// Player: name, team id, role type, ready - is player ready to start.
 typedef struct {
     header_t head;
     char name[PLAYER_NAME_SIZE];
@@ -35,6 +35,7 @@ typedef struct {
     bool more_players;
 } player_matchmaking_t;
 
+void error (const char *msg);
+int server (int port = 4545);
 int recv_complete (int sockfd, void *buf, size_t len, int flags);
-// while(players.contains(playername)) playername += '_';
 #endif
