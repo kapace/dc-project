@@ -9,6 +9,12 @@ void error (const char *msg) {
     perror(msg);
     exit(1);
 }
+
+// Move me!
+bool operator == (const player_matchmaking_t& a, const player_matchmaking_t& b) {
+    return strcmp(a.name, b.name) == 0;
+}
+
 /* Receive len amount of byte completely (no partial recv) */
 int recv_complete (int sockfd, void *buf, size_t len, int flags) {
     int bytesRead = 0;

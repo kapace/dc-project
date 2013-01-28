@@ -52,14 +52,45 @@ int main(int argc, char *argv[])
 
     n = write(sockfd, &p, sizeof(p));
     if (n < 0) 
-         error("ERROR writing to socket");
-    p.more_players = true;
-    while (p.more_players) { // more players
-        n = recv_complete(sockfd, &p, sizeof(p), 0);
-        if (n < 0) 
-             error("ERROR reading from socket");
-        printf("Player: %s\n\tteam: %d\n\trole: %d\n\tready: %s\n",p.name, p.team, p.role, (p.ready ? "yes" : "no"));
+        error("ERROR writing to socket");
+
+    while (1) {
+        header_t head;
+        n = recv_complete(sockfd, &head, sizeof(head), 0);
+        if (n < 0)
+            error("Disconnect");
+        if (head.type == MSG_PLAYER_UPDATE_INFO) {
+            player_matchmaking_t p;
+            p.head = head;
+            n = recv_complete(sockfd, ((char*)&p) + sizeof(head), sizeof(p) - sizeof(head), 0);
+            if (n < 0) 
+                error("ERROR reading from socket");
+            printf("Player: %s\t"
+                "team: %d\t"
+                "role: %d\t"
+                "ready: %s\n",
+                p.name, p.team,
+                p.role, (p.ready ? "yes" : "no"));
+            //if (!p.more_players)
+            //    break;
+        } else if (head.type == MSG_MAPNAME) {
+            //map_t m;
+            //n = recv_complete(sockfd, ((char*)&m + sizeof(head)), sizeof(map_t) - sizeof(head), 0);
+            char m[MAP_NAME_SIZE] = {0};
+            n = recv_complete(sockfd, m, MAP_NAME_SIZE, 0);
+            if (n > 0)
+                printf("Got map name: %s\n", m);
+        } else if (head.type == MSG_CHAT) {
+            printf("got msgchat size: %d\n", head.size);
+            char m[head.size];
+            n = recv_complete(sockfd, m, head.size, 0);
+            m[n] = 0;
+            if (n > 0)
+                printf("message: %s\n", m);
+        }
     }
+
+    shutdown(sockfd, SHUT_RDWR);
     close(sockfd);
     return 0;
 }

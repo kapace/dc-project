@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 #ifndef _TYPE_H
 #define _TYPE_H
@@ -11,6 +12,7 @@ enum {
     MSG_MAPNAME, // Update everyone's mapname
     MSG_START,   // It's time to start the game!
     MSG_PLAYER_UPDATE_INFO, // Update a client's players container.
+    MSG_CHAT
 };
 
 // Common Message Header 
@@ -34,6 +36,7 @@ typedef struct {
     bool ready;
     bool more_players;
 } player_matchmaking_t;
+bool operator == (const player_matchmaking_t& a, const player_matchmaking_t& b);
 
 void error (const char *msg);
 int server (int port = 4545);
